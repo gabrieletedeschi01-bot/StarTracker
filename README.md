@@ -1,69 +1,96 @@
-
 # Star Tracker Centroid Estimation Using Deep Learning
 
 ## Overview
 
-This project explores a deep-learning approach for star centroid estimation
-in images acquired by a Star Tracker, with the objective of obtaining
-accurate star-position measurements for spacecraft attitude determination.
+This project explores a deep-learning approach to star centroid estimation in images acquired by a Star Tracker, a sensor used for spacecraft attitude determination.
 
-The project was developed in MATLAB and combines image processing
-techniques with a convolutional neural network (CNN).
+Developed in MATLAB, the project combines image preprocessing, Gaussian target-mask generation and a Convolutional Neural Network (CNN) to estimate star locations in input images.
 
 ## Methodology
 
-The image-processing pipeline includes:
-- Image filtering and thresholding.
-- Gaussian target-mask generation.
-- CNN design and training.
-- Model evaluation on separate datasets.
+The implementation is organized into two main stages.
 
-The implementation details, network architecture and experimental
-configuration will be documented after reviewing the original source files.
+### 1. Data Preparation — data_star
+
+The first script processes the input star images and generates the dataset used by the neural network.
+
+The processing pipeline includes:
+- Loading JPEG (.jpg) images from a user-specified directory.
+- Resizing images to 128 × 128 pixels.
+- Applying Gaussian filtering to reduce image noise.
+- Detecting bright regions through intensity thresholding.
+- Extracting star centroid coordinates using MATLAB's regionprops function.
+- Generating Gaussian target masks centered at the detected star positions.
+
+The preprocessed images and corresponding masks are stored in a MATLAB structure and saved to data.mat.
+
+### 2. CNN Training and Evaluation — convolutional
+
+The second script loads data.mat, prepares the input images and target masks, and trains a CNN.
+
+The dataset is randomly shuffled and split into three subsets:
+
+| Dataset | Proportion |
+|---|---:|
+| Training | 70% |
+| Validation | 20% |
+| Test | 10% |
+
+The CNN consists of convolutional layers, ReLU activations, max-pooling, batch normalization and transposed convolutional layers.
+
+The network is trained using:
+- **Optimizer:** Adam
+- **Loss function:** Mean Squared Error (MSE)
+- **Maximum epochs:** 50
+- **Mini-batch size:** 64
+- **Initial learning rate:** 0.0003
+
+After training, predictions are generated for the test set and evaluated using Mean Squared Error (MSE) and Root Mean Squared Error (RMSE).
 
 ## Repository Structure
 
 ```text
-star-tracker-centroid-estimation/
-├── src/
-│   └── MATLAB source files
-├── results/
-│   └── Selected experimental results
-├── docs/
-│   ├── report.pdf
-│   └── latex/
+StarTracker/
 ├── README.md
-└── .gitignore
+├── docs/
+│   └── Star_tracker.pdf
+└── src/
+    ├── data_star
+    └── convolutional
 ```
+
+The MATLAB scripts are stored in src/. The project report is available in docs/Star_tracker.pdf.
 
 ## Requirements
 
 - MATLAB
-- Required MATLAB toolboxes: to be verified.
+- Deep Learning Toolbox
+- Image Processing Toolbox
 
 ## Getting Started
 
-1. Clone or download the repository.
-2. Open MATLAB and navigate to the project directory.
-3. Review the source files and their dependencies.
-4. Run the main script once the execution order and required inputs
-   have been documented.
+### 1. Prepare the input images
 
-## Results
+Place the star images in a local directory. The data_star script currently expects JPEG (.jpg) files.
 
-Selected experimental results will be reported here after verifying
-the original evaluation scripts and outputs.
+Before running the script, update the folder_path variable to point to the directory containing the images. The script currently sets the number of images to 1000, so this value should be consistent with the files available in that directory.
 
-The final documentation will include the available performance
-metrics and representative visualizations.
+### 2. Generate the dataset
 
-## Limitations and Reproducibility
+Run data_star from MATLAB.
 
-Dataset availability, preprocessing parameters, training configuration
-and reproducibility requirements will be documented after inspecting
-the original project materials.
+The script preprocesses the images, generates the corresponding Gaussian target masks and saves the resulting dataset as data.mat.
+
+### 3. Train and evaluate the CNN
+
+Make sure data.mat is available in the MATLAB current working directory, then run convolutional.
+
+The script loads the generated dataset, performs the training/validation/test split, trains the CNN and evaluates its predictions on the test set.
+
+## Documentation
+
+The project report is available at [docs/Star_tracker.pdf](docs/Star_tracker.pdf).
 
 ## Academic Project
 
-University project focused on deep learning, computer vision and
-spacecraft attitude determination.
+This project investigates the application of deep learning and image processing techniques to star centroid estimation, a key step in vision-based spacecraft attitude determination.
