@@ -56,7 +56,7 @@ StarTracker/
 │   └── Star_tracker.pdf
 └── src/
     ├── data_star
-    └── convolutional
+    └── convolutional.mlx
 ```
 
 The MATLAB scripts are stored in src/. The project report is available in docs/Star_tracker.pdf.
