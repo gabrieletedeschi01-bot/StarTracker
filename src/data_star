@@ -1,0 +1,71 @@
+% Percorso della cartella contenente le immagini
+folder_path = "C:\Users\pc\OneDrive\Desktop\Tracker2\star";  % Sostituisci con il percorso della tua cartella
+
+
+image_files = dir(fullfile(folder_path, '*.jpg'));
+
+% Numero di immagini trovate
+%n = length(image_files);
+n=1000;
+% Struttura per salvare i dati di tutte le immagini
+data = struct();
+
+
+
+
+
+for i = 1:n
+    img_path = fullfile(folder_path, image_files(i).name);
+    img = imread(img_path);
+    
+
+    % Ridimensionamento
+    new_img_size = [128, 128];
+    img_resized = imresize(img, new_img_size);
+    
+    % Filtro gaussiano per ridurre il rumore
+    img_gauss = imgaussfilt(img_resized, 2);
+    
+    % Picchi di luminosità (stelle)
+    soglia = 0.025 * max(img_gauss(:));  % Soglia per il rilevamento delle stelle
+    stars = img_gauss > soglia;
+    
+    % Centroidi delle stelle
+    properties = regionprops(stars, 'Centroid');
+    
+    % Estrai le coordinate delle stelle in pixel
+    star_coordinates = cat(1, properties.Centroid);
+    star_coordinates = star_coordinates(:, 1:2);
+    
+    %Parametri gaussiana
+    sigma=6;
+    
+
+    %Maschera vuota
+    g_mask=zeros(128,128);
+
+    
+    [x_grid, y_grid]=meshgrid(1:128,1:128);
+    
+    %Creazione maschera gaussiana di target
+    for j=1:size(star_coordinates,1)
+        x=star_coordinates(j,1);
+        y=star_coordinates(j,2);
+
+        gaussian=exp(-((x_grid-x).^2+(y_grid-y).^2)/(2*sigma^2));
+
+        g_mask=g_mask+gaussian;
+    end
+    
+    %Normalizzazione
+    g_mask=g_mask/max(g_mask(:));
+
+    % Salvataggio dei risultati nella struttura
+    data(i).img = img_gauss;
+    data(i).mask = g_mask;
+    data(i).file_name = image_files(i).name;
+end
+
+
+% Salvataggio dei dati in un file MAT
+save('data.mat', 'data');
